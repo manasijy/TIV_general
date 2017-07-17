@@ -1,32 +1,15 @@
 clear;
 close;
 
-%% PART I- DATA IMPORT
+% path = 'C:\Documents and Settings\nilesh\My Documents\MATLAB\MKY1';
+%                 % filename = 'path''C:\Documents and Settings\nilesh\My Documents\MATLAB\MKY1\modelfit.txt';
+% filename = strcat(path,'\SH Programs\TIV Model\equispaced.txt');
 
-
-%% Initialize variables.
-
-% For lab computer
-
-path = 'C:\Documents and Settings\nilesh\My Documents\MATLAB\MKY1';
-                % filename = 'path''C:\Documents and Settings\nilesh\My Documents\MATLAB\MKY1\modelfit.txt';
-filename = strcat(path,'\SH Programs\TIV Model\equispaced.txt');
-
-% for home computer
-% filename = 'C:\Users\Intel\Documents\MATLAB\TIV Feb 19\equispaced.txt'; %equispaced modelfit.txt
-
-%%
-
+filename = 'equispaced.txt';
 delimiter = '\t';
 formatSpec = '%f%f%[^\n\r]'; 
-
-%% Open the text file.
 fileID = fopen(filename,'r');
-
-%% Read columns of data according to format string.
 dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'EmptyValue' ,NaN, 'ReturnOnError', false);
-
-%% Close the text file.
 fclose(fileID);
 
 
@@ -62,20 +45,17 @@ set(data, 'Tstart',0.0024, 'TimeUnit', 's');%0.0024
 % sigma_i =10; % 93.86; %MPa
 % rhof0 = 1e11;   %m-2
 
-Ls = 1e-6; %m 
+Ls = 0.5e-6; %m 
 M = 3.01; % 2.96
 b = 2.86e-10; % m
-k1 = 2e8;
-k2= 5-10;
-kL = 150; % 100-400
+k1 = 2e7;
+k2= 0.3;
+kL = 200; % 100-400
 alpha = 1/3;
 G = 26e9; %Pa
 sigma_i = 92.35e6; %Pa
-rhof0 = 1e11;   %m-2
+rhof0 = 1e10;   %m-2
 
-
-
-%
 param = [k1,k2,kL,Ls,sigma_i,rhof0,G,M,b,alpha]; % [Ls,M,b,k1,k2,kL,alpha,G,sigma_i,rhof0];                           
 parameters    = {param(1), param(2), param(3), param(4), param(5), param(6), param(7), param(8), param(9), param(10)}; 
 
@@ -83,11 +63,9 @@ parameters    = {param(1), param(2), param(3), param(4), param(5), param(6), par
 % Vector with three entries [Ny Nu Nx], specifying the number of model
 % outputs Ny, the number of inputs Nu, and the number of states Nx
 
-order         = [1 0 4];  
-                           
+order         = [1 0 4];                           
                            
 %% State variable initialization
-
 
 initial_L = 3e-5;
 initial_rhof = 1e11; 
