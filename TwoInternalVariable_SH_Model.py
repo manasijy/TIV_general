@@ -3,12 +3,14 @@ import pandas as pd
 from scipy.integrate import odeint
 from scipy.optimize import curve_fit
 
-filename = 'equispaced.txt' #'manasijy/TIV_general/equispaced.txt'
+filename = 'C:/Users/MKY/Desktop/equispaced.txt'
+ #'manasijy/TIV_general/equispaced.txt'
 with open(filename, 'r') as file:
     # data = file.read()
     data = pd.read_csv(file, sep="\t") 
 # sigma = data['column_name']
-sigma = data.iloc[:,2]
+strain = data.iloc[:,0]
+sigma = data.iloc[:,1]
 sigma_array = sigma.to_numpy()
 # rhof_expt = (sigma_array/(alpha*G*b))^2
 # Ls = 1e-6# %m 
@@ -19,8 +21,8 @@ b = 2.86e-10#  % m
 # kL = 150 # % 100-400
 alpha = 1/3
 G = 26e9 # Pa
-sigma_i = 92.35e6 # %Pa
-rhof_expt = (sigma_array/(alpha*G*b))^2
+# sigma_i = 92.35e6 # %Pa
+rhof_expt = (sigma_array*1e6/(M*alpha*G*b))**2
 # rhof0 = 1e11 #m-2
 # Define the system of ODEs
 def system(y, t, kL, Ls, k1, k2):
@@ -35,19 +37,38 @@ def system(y, t, kL, Ls, k1, k2):
 def fit_func(t, L0, rhof0, kL, Ls, k1, k2):
     y0 = [L0, rhof0]
     solution = odeint(system, y0, t, args=(kL, Ls, k1, k2,))
-    return solution[:, 0]  # replace with the appropriate function of u, v, w
+    return solution[:, 1]
 
 # Time points
-t = np.linspace(0, 10, 1000)
-
-# Experimental data
-y_exp = np.random.rand(1000)  # replace with your experimental data
+# t = np.linspace(0, 10, 1000)
+t = strain
 
 # Initial guess for the parameters
-# p0 = [1.0, 0.0, 0.0]  # replace with your initial guess
-p0 = [100e6, 1e11, 150, 1e-6, 2e8, 6 ]
+p0 = [40e-6, 1e12, 1, 1e-6, 1e8, 6 ]
 # Fit the function to the data
-popt, pcov = curve_fit(fit_func, t, y_exp, p0)
-
+popt, pcov = curve_fit(fit_func, t, rhof_expt, p0)
 # Print the optimal parameters
-print(popt)
+print('L0=',"{:.6e}".format(popt[0])),print('rhof0=',"{:.6e}".format(popt[1]))
+print('kL=',"{:.6e}".format(popt[2])), print('Ls=',"{:.6e}".format(popt[3]))
+print('k1=',"{:.6e}".format(popt[4])),print('k2=',"{:.6e}".format(popt[5]))
+## comparing the result against experimental data
+import matplotlib.pyplot as plt
+
+# Time points
+# t = np.linspace(0, 10, 1000)
+
+# Use the optimal parameters to generate the fitted curve
+L0, rhof0, kL, Ls, k1, k2 = popt
+rhof_fit = fit_func(t, L0, rhof0, kL, Ls, k1, k2)
+
+# Plot the experimental data
+plt.scatter(t, rhof_expt, label='Experimental data')
+
+# Plot the fitted curve
+plt.plot(t, rhof_fit, label='Fitted curve', color='red')
+
+# Add a legend
+plt.legend()
+
+# Show the plot
+plt.show()
